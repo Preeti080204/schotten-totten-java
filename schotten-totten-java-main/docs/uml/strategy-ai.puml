@@ -1,0 +1,85 @@
+@startuml strategy-ai
+!include style.iuml
+title Strategy — virtual players
+
+interface PlayerStrategy <<Strategy>> {
+  + chooseAction(view : PlayerView) : Action
+  + name() : String
+}
+
+abstract class AbstractStrategy {
+  # engine : GameEngine
+  # rng : SeededRandom
+  + chooseAction(view : PlayerView) : Action {final}
+  # {abstract} choosePlay(view, legal : List<Action>) : Action
+  # {abstract} chooseResolution(view, options) : Action
+  # {abstract} chooseDraw(view, options) : Action
+  # usefulness(view, heuristics, card) : double
+}
+
+class SimpleStrategy <<Easy>> {
+  + name() : String
+}
+note bottom of SimpleStrategy
+  Greedy and coherent: places the formation card
+  that most improves one formation, plays other
+  special cards only when it cannot, claims every
+  Stone it can and draws Clan cards first.
+end note
+
+class AdvancedStrategy <<Hard>> {
+  + name() : String
+}
+note bottom of AdvancedStrategy
+  One-ply look-ahead: simulates every legal play
+  with the real engine and scores the position with
+  BoardEvaluator (formation comparisons, adjacency,
+  five-Stone race, claims). Special cards carry an
+  opportunity cost.
+end note
+
+class StrategyFactory {
+  + {static} create(Difficulty, GameEngine, seed : long) : PlayerStrategy
+}
+
+class PlayerView {
+  + {static} of(GameState, PlayerId, SeededRandom) : PlayerView
+  + state() : GameState
+  + me() : PlayerId
+  + myHand() : List<Card>
+  + unseenCards() : List<Card>
+}
+note right of PlayerView
+  Copy of the game in which the opponent's hand
+  and the deck order are replaced by a random
+  redistribution of the unseen cards:
+  a strategy cannot see hidden information.
+end note
+
+class BoardEvaluator
+class FormationHeuristics
+
+class VirtualPlayerDriver <<Context>> {
+  - strategies : Map<PlayerId, PlayerStrategy>
+  + onUpdate(SessionUpdate)
+  - act(actor, version)
+}
+
+class GameSession {
+  + submit(PlayerId, Action, long) : ActionOutcome
+}
+
+PlayerStrategy <|.. AbstractStrategy
+AbstractStrategy <|-- SimpleStrategy
+AbstractStrategy <|-- AdvancedStrategy
+AdvancedStrategy --> BoardEvaluator
+AdvancedStrategy ..> FormationHeuristics
+BoardEvaluator --> FormationHeuristics
+StrategyFactory ..> SimpleStrategy : EASY
+StrategyFactory ..> AdvancedStrategy : HARD
+VirtualPlayerDriver o-- "1..2" PlayerStrategy
+VirtualPlayerDriver ..> StrategyFactory
+VirtualPlayerDriver ..> PlayerView : builds
+VirtualPlayerDriver --> GameSession : same validation\nas a human
+PlayerStrategy ..> PlayerView
+@enduml

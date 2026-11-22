@@ -1,0 +1,82 @@
+@startuml sequence-normal-turn
+!include style.iuml
+title Sequence — a normal turn (human plays a Clan card, claims, draws)
+
+actor Player
+participant "GameScreen\n(View)" as GS
+participant "ParameterChooser" as PC
+participant "GameSession\n(Controller)" as Session
+participant "GameEngine" as Engine
+participant "FormationPlacementEffect" as Effect
+participant "ClaimResolver" as CR
+participant "VictoryChecker" as VC
+participant "CommandLineView\n(View)" as CLI
+participant "VirtualPlayerDriver" as Driver
+
+== 1. Play a card ==
+Player -> GS : click a Clan card in hand
+GS -> Engine : legalActions(snapshot)
+Engine --> GS : PlayCardAction options for that card
+GS -> PC : new ParameterChooser(options)
+GS -> GS : highlight the Stones listed by PC.values(STONE)
+Player -> GS : click Stone 4
+GS -> PC : choose(STONE, 3)
+PC --> GS : result() = EffectParameters(stone 3)
+GS -> Session : submitAsHuman(PlayCardAction)
+activate Session
+Session -> Session : actor = engine.playerToAct(state)\nreject if the actor is virtual
+Session -> Session : next = state.copy()
+Session -> Engine : apply(next, actor, action)
+activate Engine
+Engine -> Engine : requireTurn(PLAY)
+Engine -> Engine : rules.maySpecialBePlayed(...) (special cards only)
+Engine -> Effect : validate(ctx, card, params)
+Engine -> Effect : apply(ctx, card, params)
+Effect -> Effect : stone.addCard(actor, card, sequence)\nemit CARD_PLACED
+Engine -> Engine : phase = CLAIM
+Engine --> Session : events
+deactivate Engine
+Session -> Session : state = next (commit)
+Session -> GS : onUpdate(SessionUpdate)
+Session -> CLI : onUpdate(SessionUpdate)
+Session -> Driver : onUpdate(SessionUpdate)
+note right of Driver : human to act: nothing to do
+Session --> GS : ActionOutcome(accepted)
+deactivate Session
+GS -> GS : render (Platform.runLater), animate new card
+
+== 2. Optional claims (any number) ==
+Player -> GS : press "Claim" on Stone 4
+GS -> Session : submitAsHuman(ClaimAction(3))
+Session -> Engine : apply(copy, actor, ClaimAction)
+Engine -> Engine : requireTurn(CLAIM)
+Engine -> CR : check(state, actor, 3)
+CR --> Engine : ClaimCheck(allowed, reason)
+alt claim allowed
+  Engine -> Engine : stone.claim(actor), emit STONE_CLAIMED
+  Engine -> VC : check(board)
+  alt 5 Stones or 3 adjacent
+    Engine -> Engine : endRound: record RoundResult,\nphase = ROUND_OVER or MATCH_OVER
+  end
+else claim refused
+  Engine --> Session : IllegalActionException(reason)
+  Session --> GS : ActionOutcome(rejected, reason)
+  GS -> Player : toast with the reason (state unchanged)
+end
+Session -> GS : onUpdate
+Session -> CLI : onUpdate
+
+== 3. End the turn ==
+Player -> GS : press "End turn" (choose a deck if several)
+GS -> Session : submitAsHuman(EndTurnAction(CLAN))
+Session -> Engine : apply(copy, actor, EndTurnAction)
+Engine -> Engine : draw from the chosen deck\nLifecycleHook.onTurnEnd (Stone Ward)
+Engine -> Engine : advanceTurn, phase = PLAY,\nemit TURN_STARTED
+Session -> GS : onUpdate (hot-seat: show the curtain)
+Session -> CLI : onUpdate (prints the new turn)
+Session -> Driver : onUpdate
+alt next player is virtual
+  Driver -> Driver : schedule act() after the AI delay
+  Driver -> Session : submit(actor, strategy.chooseAction(PlayerView), version)
+end
+@enduml

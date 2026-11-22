@@ -1,0 +1,334 @@
+@startuml class-diagram
+!include style.iuml
+title Schotten Totten — final class diagram (main classes)
+
+package model {
+  interface Card {
+    +id() : String
+    +displayName() : String
+    +deckType() : DeckType
+    +effectId() : String
+    +isFormationCard() : boolean
+    +isSpecial() : boolean
+  }
+  class ClanCard <<record>> {
+    +color() : ClanColor
+    +strength() : int
+  }
+  class TacticCard <<record>> {
+    +type() : TacticType
+    +isJoker() : boolean
+  }
+  class ExpansionCard <<record>> {
+    +definition() : ExpansionDefinition
+  }
+  enum TacticType {
+    JOKER, SPY, SHIELD_BEARER,
+    BLIND_MANS_BLUFF, MUD_FIGHT,
+    RECRUITER, STRATEGIST,
+    BANSHEE, TRAITOR
+  }
+  class GameState {
+    +hand(PlayerId) : List<Card>
+    +deck(DeckType) : Optional<Deck>
+    +discard() : List<Card>
+    +phase() : TurnPhase
+    +currentPlayer() : PlayerId
+    +pending() : Optional<PendingEffect>
+    +match() : MatchScore
+    +copy() : GameState
+  }
+  class GameConfiguration <<record>> {
+    player1, player2 : PlayerProfile
+    tacticVariant : boolean
+    expansions : boolean
+    rounds : int
+    firstPlayerRule : FirstPlayerRule
+    seed : long
+  }
+  class PlayerProfile <<record>> {
+    name : String
+    type : PlayerType
+    difficulty : Difficulty
+  }
+  class Board {
+    {static} +STONE_COUNT = 9
+    +stone(int) : StoneState
+    +stonesOwnedBy(PlayerId) : int
+  }
+  class StoneState {
+    +side(PlayerId) : StoneSide
+    +requiredSize() : int
+    +isComplete(PlayerId) : boolean
+    +owner() : Optional<PlayerId>
+    +claim(PlayerId)
+  }
+  class StoneSide {
+    +cards() : List<Card>
+    +completedAt() : long
+    +ward() : Optional<ActiveWard>
+  }
+  class Deck {
+    +draw() : Optional<Card>
+    +peek(int) : List<Card>
+    +putBottom(Card)
+  }
+  class MatchScore {
+    +record(RoundResult)
+    +points(PlayerId) : int
+    +isComplete() : boolean
+  }
+  enum TurnPhase {
+    PLAY, RESOLVE_EFFECT, CLAIM,
+    ROUND_OVER, MATCH_OVER
+  }
+  class PendingEffect <<record>>
+}
+
+Card <|.. ClanCard
+Card <|.. TacticCard
+Card <|.. ExpansionCard
+TacticCard --> TacticType
+GameState *-- "1" Board
+GameState *-- "1..3" Deck
+GameState o-- "*" Card : hands, discard
+GameState --> GameConfiguration
+GameState *-- "1" MatchScore
+GameState --> TurnPhase
+GameState o-- "0..1" PendingEffect
+GameConfiguration *-- "2" PlayerProfile
+Board *-- "9" StoneState
+StoneState *-- "2" StoneSide
+
+package rules {
+  class RuleSet {
+    +handSize() : int
+    +maySpecialBePlayed(GameState, PlayerId) : boolean
+    +mayPass(GameState, PlayerId) : boolean
+  }
+  class FormationEvaluator {
+    +evaluate(List<Card>, boolean) : FormationValue
+  }
+  class FormationValue <<record>> {
+    rank : FormationRank
+    sum : int
+    +beats(FormationValue) : boolean
+  }
+  class ClaimResolver {
+    +check(GameState, PlayerId, int) : ClaimCheck
+    +candidatePool(GameState, PlayerId) : List<Card>
+  }
+  class VictoryChecker {
+    +check(Board) : Optional<Victory>
+  }
+}
+ClaimResolver --> FormationEvaluator
+FormationEvaluator ..> FormationValue
+
+package engine {
+  class GameEngine {
+    +newGame(GameConfiguration) : GameState
+    +apply(GameState, PlayerId, Action) : List<GameEvent>
+    +legalActions(GameState) : List<Action>
+    +isLegal(GameState, PlayerId, Action) : boolean
+    +checkClaim(GameState, PlayerId, int) : ClaimCheck
+    +playerToAct(GameState) : Optional<PlayerId>
+  }
+  interface CardEffect {
+    +id() : String
+    +validate(EffectContext, Card, EffectParameters)
+    +apply(EffectContext, Card, EffectParameters)
+    +enumerate(EffectContext, Card) : List<EffectParameters>
+  }
+  interface MultiStepEffect {
+    +validateResolution(...)
+    +resolve(EffectContext, PendingEffect, EffectParameters)
+    +enumerateResolutions(...) : List<EffectParameters>
+  }
+  interface LifecycleHook {
+    +onTurnEnd(EffectContext, PlayerId)
+    +onStoneClaimed(EffectContext, StoneState)
+  }
+  class EffectRegistry {
+    +register(CardEffect) : EffectRegistry
+    +get(String) : CardEffect
+    +hooks() : List<LifecycleHook>
+  }
+  class EffectContext
+  class GameSetup
+  class GameEvent <<record>>
+  interface Action <<sealed>>
+}
+CardEffect <|-- MultiStepEffect
+GameEngine --> EffectRegistry
+GameEngine --> ClaimResolver
+GameEngine --> VictoryChecker
+GameEngine --> GameSetup
+GameEngine ..> RuleSet
+GameEngine ..> EffectContext : creates
+EffectRegistry o-- "*" CardEffect
+CardEffect ..> EffectContext
+GameEngine ..> GameEvent : emits
+GameEngine ..> Action : validates
+
+package engine.action {
+  class PlayCardAction <<record>>
+  class PassAction <<record>>
+  class ResolveEffectAction <<record>>
+  class ClaimAction <<record>>
+  class EndTurnAction <<record>>
+  class NextRoundAction <<record>>
+}
+Action <|.. PlayCardAction
+Action <|.. PassAction
+Action <|.. ResolveEffectAction
+Action <|.. ClaimAction
+Action <|.. EndTurnAction
+Action <|.. NextRoundAction
+
+package cards {
+  class FormationPlacementEffect
+  class CombatModeEffect
+  class TraitorEffect
+  class StrategistEffect
+  class BansheeEffect
+  class RecruiterEffect
+  class ClanExchangeEffect
+  class HighlandScoutEffect
+  class StoneWardEffect
+  class ExpansionCatalog
+  class StandardRules {
+    {static} +createEngine() : GameEngine
+    {static} +createRegistry() : EffectRegistry
+  }
+}
+CardEffect <|.. FormationPlacementEffect
+CardEffect <|.. CombatModeEffect
+CardEffect <|.. TraitorEffect
+CardEffect <|.. StrategistEffect
+CardEffect <|.. BansheeEffect
+CardEffect <|.. ClanExchangeEffect
+MultiStepEffect <|.. RecruiterEffect
+MultiStepEffect <|.. HighlandScoutEffect
+CardEffect <|.. StoneWardEffect
+LifecycleHook <|.. StoneWardEffect
+StandardRules ..> EffectRegistry : fills
+StandardRules ..> ExpansionCatalog
+
+package ai {
+  interface PlayerStrategy {
+    +chooseAction(PlayerView) : Action
+    +name() : String
+  }
+  abstract class AbstractStrategy
+  class SimpleStrategy
+  class AdvancedStrategy
+  class StrategyFactory {
+    {static} +create(Difficulty, GameEngine, long) : PlayerStrategy
+  }
+  class PlayerView {
+    {static} +of(GameState, PlayerId, SeededRandom) : PlayerView
+    +myHand() : List<Card>
+    +unseenCards() : List<Card>
+  }
+}
+PlayerStrategy <|.. AbstractStrategy
+AbstractStrategy <|-- SimpleStrategy
+AbstractStrategy <|-- AdvancedStrategy
+StrategyFactory ..> PlayerStrategy : creates
+PlayerStrategy ..> PlayerView
+AbstractStrategy --> GameEngine
+
+package controller {
+  class GameSession {
+    +snapshot() : GameState
+    +submit(PlayerId, Action) : ActionOutcome
+    +submitAsHuman(Action) : ActionOutcome
+    +addListener(SessionListener)
+  }
+  interface SessionListener {
+    +onUpdate(SessionUpdate)
+  }
+  class SessionUpdate <<record>>
+  class SessionHub {
+    +current() : Optional<GameSession>
+    +activate(GameSession, long)
+    +clear()
+  }
+  class VirtualPlayerDriver
+  class GameController {
+    +startNewGame(GameConfiguration) : GameSession
+    +save(Path)
+    +load(Path) : GameSession
+    +hint() : Optional<Action>
+  }
+  class ParameterChooser
+  class TextDescriber
+}
+GameSession --> GameEngine
+GameSession *-- GameState
+GameSession o-- "*" SessionListener
+GameSession ..> SessionUpdate
+SessionHub o-- "0..1" GameSession
+SessionHub *-- "0..1" VirtualPlayerDriver
+SessionListener <|.. VirtualPlayerDriver
+VirtualPlayerDriver --> "0..2" PlayerStrategy
+GameController --> SessionHub
+GameController --> SaveManager
+
+package persistence {
+  class SaveManager {
+    {static} +FORMAT_VERSION
+    +save(GameState, Path)
+    +load(Path) : GameState
+  }
+  class GameStateMapper
+  class SaveFileDto <<record>>
+}
+SaveManager --> GameStateMapper
+GameStateMapper ..> SaveFileDto
+
+package app {
+  class GameSettings <<Singleton>> {
+    {static} +getInstance() : GameSettings
+  }
+  class AppContext {
+    {static} +create() : AppContext
+  }
+  class Launcher
+  class CliLauncher
+}
+AppContext *-- GameController
+AppContext *-- SessionHub
+Launcher ..> AppContext
+CliLauncher ..> AppContext
+
+package cli {
+  class CommandLineView
+  class TextRenderer
+}
+SessionListener <|.. CommandLineView
+CommandLineView --> GameController
+CommandLineView --> TextRenderer
+
+package view {
+  class SchottenTottenApp
+  class ScreenManager
+  interface Screen
+  class GameScreen
+  class BoardView
+  class SideRail
+  class GameOverlays
+}
+SchottenTottenApp --> ScreenManager
+ScreenManager o-- "*" Screen
+Screen <|.. GameScreen
+SessionListener <|.. GameScreen
+GameScreen *-- BoardView
+GameScreen *-- SideRail
+GameScreen ..> GameOverlays : builds overlays
+GameScreen --> GameController
+GameScreen --> ScreenManager
+GameScreen ..> ParameterChooser
+GameScreen ..> GameSettings
+@enduml

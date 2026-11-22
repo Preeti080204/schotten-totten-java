@@ -1,0 +1,453 @@
+/*
+ * Schotten Totten design system.
+ * Palette from the rulebook: emerald grass, turquoise carvings, burgundy ribbons, gold accents,
+ * cream parchment, earthy browns. Fonts: Uncial Antiqua (titles), Cinzel Decorative (headings,
+ * numerals), Alegreya Sans (text). All bundled (SIL Open Font License).
+ */
+
+.root {
+    -st-ink: #3B2614;
+    -st-ink-soft: #6B4A2B;
+    -st-parchment: #FBF3DC;
+    -st-parchment-dark: #E7D6AE;
+    -st-burgundy: #8E1B2A;
+    -st-burgundy-light: #B3283B;
+    -st-turquoise: #1BA9A0;
+    -st-gold: #D9A520;
+    -st-emerald: #2F8F3A;
+    -st-wood: #5A3A1A;
+    -fx-font-family: "Alegreya Sans";
+    -fx-font-size: 15px;
+    -fx-text-fill: -st-ink;
+    -fx-focus-color: -st-turquoise;
+    -fx-faint-focus-color: transparent;
+    -fx-accent: -st-turquoise;
+}
+
+.screen {
+    -fx-background-color: #24361f;
+}
+
+/* ------------------------------------------------------------ typography */
+
+.title-text {
+    -fx-font-family: "Uncial Antiqua";
+    -fx-fill: -st-parchment;
+}
+
+.heading {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 22px;
+    -fx-text-fill: -st-burgundy;
+}
+
+.subheading {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-text-fill: -st-ink;
+}
+
+.body-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: -st-ink;
+}
+
+.hint-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: -st-ink-soft;
+}
+
+.light-text {
+    -fx-text-fill: -st-parchment;
+}
+
+/* ------------------------------------------------------------ panels */
+
+/* Textured backgrounds of .parchment-panel and .wood-panel are painted by view.Styles. */
+.parchment-panel {
+    -fx-border-color: rgba(59, 38, 20, 0.35);
+    -fx-border-width: 1;
+    -fx-border-insets: 9;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(20, 10, 2, 0.6), 28, 0.2, 0, 8);
+}
+
+.parchment-card {
+    -fx-background-color: rgba(107, 74, 43, 0.55), linear-gradient(to bottom, #FFF9E8, #F3E6C4);
+    -fx-background-insets: 0, 1.5;
+    -fx-background-radius: 12, 11;
+    -fx-effect: dropshadow(gaussian, rgba(20, 10, 2, 0.35), 8, 0.1, 0, 2);
+}
+
+.wood-panel {
+    -fx-border-color: #2E1C0C, #A87A3D;
+    -fx-border-width: 0 0 0 4, 0 0 0 1.5;
+    -fx-border-insets: 0, 0 0 0 4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 20, 0.1, -4, 0);
+}
+
+.rail-section {
+    -fx-background-color: rgba(59, 38, 20, 0.85), linear-gradient(to bottom, #FFF8E4, #EFDFB7);
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 12, 10;
+    -fx-padding: 10 12 10 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 10, 0.1, 0, 3);
+}
+
+.rail-title {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: -st-burgundy;
+}
+
+/* ------------------------------------------------------------ buttons */
+
+.button, .toggle-button {
+    -fx-cursor: hand;
+    -fx-focus-traversable: true;
+}
+
+.plaque {
+    -fx-background-color: #2E1C0C, linear-gradient(to bottom, #E3B544, #9C6E14),
+        linear-gradient(to bottom, #7A4E26, #4E2F12);
+    -fx-background-insets: 0, 2, 4;
+    -fx-background-radius: 12, 10, 8;
+    -fx-padding: 10 26 10 26;
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 17px;
+    -fx-text-fill: #FBF3DC;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 10, 0.15, 0, 4);
+}
+
+.plaque:hover {
+    -fx-background-color: #2E1C0C, linear-gradient(to bottom, #F7D36A, #C08E22),
+        linear-gradient(to bottom, #93623A, #5E3A18);
+    -fx-effect: dropshadow(gaussian, rgba(247, 211, 106, 0.75), 18, 0.25, 0, 0);
+}
+
+.plaque:pressed {
+    -fx-background-color: #2E1C0C, linear-gradient(to bottom, #9C6E14, #E3B544),
+        linear-gradient(to bottom, #4E2F12, #6E4420);
+    -fx-translate-y: 1;
+}
+
+.plaque:focused {
+    -fx-border-color: #3FE0D0;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-border-insets: -3;
+}
+
+.plaque:disabled {
+    -fx-opacity: 0.45;
+}
+
+.plaque-primary {
+    -fx-background-color: #3A0C13, linear-gradient(to bottom, #F2CC5B, #A9781A),
+        linear-gradient(to bottom, #B3283B, #74131F);
+}
+
+.plaque-primary:hover {
+    -fx-background-color: #3A0C13, linear-gradient(to bottom, #FFE08A, #C99A2E),
+        linear-gradient(to bottom, #CC3247, #86182A);
+}
+
+.plaque-emerald {
+    -fx-background-color: #13300F, linear-gradient(to bottom, #F2CC5B, #A9781A),
+        linear-gradient(to bottom, #3BA449, #1F6A28);
+}
+
+.plaque-emerald:hover {
+    -fx-background-color: #13300F, linear-gradient(to bottom, #FFE08A, #C99A2E),
+        linear-gradient(to bottom, #4BBE5A, #257A30);
+}
+
+.plaque-small {
+    -fx-font-size: 13px;
+    -fx-padding: 6 14 6 14;
+}
+
+.menu-button-big {
+    -fx-font-size: 21px;
+    -fx-pref-width: 330px;
+    -fx-padding: 12 30 12 30;
+}
+
+.ghost-button {
+    -fx-background-color: rgba(59, 38, 20, 0.12);
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(59, 38, 20, 0.45);
+    -fx-border-radius: 8;
+    -fx-padding: 5 12 5 12;
+    -fx-text-fill: -st-ink;
+    -fx-font-weight: bold;
+}
+
+.ghost-button:hover {
+    -fx-background-color: rgba(27, 169, 160, 0.2);
+    -fx-border-color: -st-turquoise;
+}
+
+.icon-button {
+    -fx-background-color: rgba(251, 243, 220, 0.92);
+    -fx-background-radius: 20;
+    -fx-border-color: -st-gold;
+    -fx-border-radius: 20;
+    -fx-border-width: 2;
+    -fx-padding: 4 12 4 12;
+    -fx-font-weight: bold;
+    -fx-text-fill: -st-ink;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 6, 0.1, 0, 2);
+}
+
+.icon-button:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: -st-turquoise;
+}
+
+.claim-button {
+    -fx-background-color: #3A0C13, linear-gradient(to bottom, #FFE08A, #C99A2E),
+        linear-gradient(to bottom, #CC3247, #86182A);
+    -fx-background-insets: 0, 1.5, 3;
+    -fx-background-radius: 14, 13, 11;
+    -fx-text-fill: #FFF6D8;
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 3 10 3 10;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 90, 0.9), 14, 0.35, 0, 0);
+}
+
+/* ------------------------------------------------------------ toggles and tiles */
+
+.choice-tile {
+    -fx-background-color: rgba(107, 74, 43, 0.5), linear-gradient(to bottom, #FFF9E8, #F1E2BD);
+    -fx-background-insets: 0, 1.5;
+    -fx-background-radius: 12, 11;
+    -fx-padding: 10 14 10 14;
+    -fx-text-fill: -st-ink;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-content-display: top;
+    -fx-graphic-text-gap: 6;
+    -fx-effect: dropshadow(gaussian, rgba(20, 10, 2, 0.3), 6, 0.1, 0, 2);
+}
+
+.choice-tile:hover {
+    -fx-background-color: -st-turquoise, linear-gradient(to bottom, #FFFFFF, #F6EBCF);
+}
+
+.choice-tile:selected {
+    -fx-background-color: #0F6F68, linear-gradient(to bottom, #E5FBF7, #BDEDE6);
+    -fx-background-insets: 0, 3;
+    -fx-effect: dropshadow(gaussian, rgba(27, 169, 160, 0.8), 14, 0.25, 0, 0);
+}
+
+.choice-tile:focused {
+    -fx-border-color: -st-gold;
+    -fx-border-radius: 12;
+    -fx-border-width: 2;
+}
+
+.switch {
+    -fx-background-color: rgba(59, 38, 20, 0.5), #D9C69C;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 16;
+    -fx-pref-width: 74px;
+    -fx-padding: 4 10 4 10;
+    -fx-font-weight: bold;
+    -fx-text-fill: -st-ink-soft;
+}
+
+.switch:selected {
+    -fx-background-color: #0F6F68, linear-gradient(to bottom, #39C9BE, #17968E);
+    -fx-text-fill: white;
+}
+
+/* ------------------------------------------------------------ inputs */
+
+.text-field {
+    -fx-background-color: rgba(59, 38, 20, 0.55), #FFFBEF;
+    -fx-background-insets: 0, 1.5;
+    -fx-background-radius: 8, 7;
+    -fx-text-fill: -st-ink;
+    -fx-prompt-text-fill: #A08A6A;
+    -fx-font-size: 16px;
+    -fx-padding: 6 10 6 10;
+}
+
+.text-field:focused {
+    -fx-background-color: -st-turquoise, #FFFFFF;
+    -fx-background-insets: 0, 2;
+}
+
+.slider .track {
+    -fx-background-color: #3B2614, linear-gradient(to bottom, #B08A55, #8A6534);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6;
+    -fx-pref-height: 8px;
+}
+
+.slider .thumb {
+    -fx-background-color: #5A3A1A, radial-gradient(center 40% 35%, radius 70%, #FFE08A, #C99A2E);
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 12;
+    -fx-padding: 9;
+}
+
+.slider .axis {
+    -fx-tick-label-fill: -st-ink;
+}
+
+/* ------------------------------------------------------------ lists and scroll */
+
+.scroll-pane, .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(90, 58, 26, 0.55);
+    -fx-background-radius: 6;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-shape: "";
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.list-view {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -st-ink;
+    -fx-padding: 3 4 3 4;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+.list-view .list-cell:filled:selected, .list-view .list-cell:filled:hover {
+    -fx-background-color: rgba(27, 169, 160, 0.18);
+}
+
+.section-list .list-cell {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8 10 8 10;
+}
+
+.section-list .list-cell:filled:selected {
+    -fx-background-color: rgba(142, 27, 42, 0.16);
+    -fx-text-fill: -st-burgundy;
+}
+
+/* ------------------------------------------------------------ tooltips */
+
+.tooltip {
+    -fx-background-color: #5A3A1A, #FFF8E4;
+    -fx-background-insets: 0, 1.5;
+    -fx-background-radius: 8, 7;
+    -fx-text-fill: -st-ink;
+    -fx-font-family: "Alegreya Sans";
+    -fx-font-size: 14px;
+    -fx-padding: 8 10 8 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 10, 0.1, 0, 3);
+}
+
+/* ------------------------------------------------------------ game screen */
+
+.player-plaque {
+    -fx-background-color: rgba(30, 18, 6, 0.75), linear-gradient(to bottom, #FFF8E4, #EBD9AE);
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 14, 12;
+    -fx-padding: 8 12 8 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.15, 0, 3);
+}
+
+.player-plaque-active {
+    -fx-background-color: -st-gold, linear-gradient(to bottom, #FFFDF2, #F6E7BE);
+    -fx-background-insets: 0, 3;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 90, 0.9), 18, 0.3, 0, 0);
+}
+
+.player-name {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 17px;
+    -fx-text-fill: -st-ink;
+}
+
+.player-meta {
+    -fx-font-size: 13px;
+    -fx-text-fill: -st-ink-soft;
+}
+
+.turn-banner {
+    -fx-background-color: #3A0C13, linear-gradient(to bottom, #B3283B, #7A1522);
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 12, 10;
+    -fx-padding: 10 12 10 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.1, 0, 3);
+}
+
+.turn-title {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: #FFF3CF;
+}
+
+.turn-text {
+    -fx-font-size: 14.5px;
+    -fx-text-fill: #FBEFD0;
+    -fx-wrap-text: true;
+}
+
+.deck-count {
+    -fx-font-family: "Cinzel Decorative";
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: -st-ink;
+}
+
+.toast {
+    -fx-background-color: #3A0C13, linear-gradient(to bottom, #FFF8E4, #F1DFB4);
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 12, 10;
+    -fx-padding: 10 18 10 18;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -st-ink;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 16, 0.2, 0, 4);
+}
+
+.toast-error {
+    -fx-background-color: #5C0A14, linear-gradient(to bottom, #FFE9E3, #F6C9BE);
+}
+
+.modal-veil {
+    -fx-background-color: rgba(18, 12, 4, 0.62);
+}
+
+.score-table .cell-label {
+    -fx-font-size: 15px;
+    -fx-padding: 4 12 4 12;
+}

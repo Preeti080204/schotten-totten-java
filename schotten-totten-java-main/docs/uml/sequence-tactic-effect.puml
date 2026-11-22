@@ -1,0 +1,73 @@
+@startuml sequence-tactic-effect
+!include style.iuml
+title Sequence — Tactic card effects (Traitor, then the two-step Recruiter)
+
+actor Player
+participant "GameScreen" as GS
+participant "ParameterChooser" as PC
+participant "GameSession" as Session
+participant "GameEngine" as Engine
+participant "EffectRegistry" as Reg
+participant "TraitorEffect" as Traitor
+participant "RecruiterEffect" as Recruiter
+participant "RuleSet" as Rules
+
+== A. Traitor: a one-step effect with two board choices ==
+Player -> GS : click the Traitor card
+GS -> Engine : legalActions(snapshot)
+Engine -> Rules : maySpecialBePlayed(state, actor)
+Engine -> Reg : get("tactic.traitor")
+Reg --> Engine : TraitorEffect
+Engine -> Traitor : enumerate(ctx, card)
+Traitor --> Engine : (target card, destination) pairs\n(skips claimed Stones and Stone Wards)
+Engine --> GS : PlayCardAction options
+GS -> PC : new ParameterChooser(options)
+PC --> GS : nextField() = TARGET_CARD
+GS -> Player : highlight the opponent's Clan cards\n(prompt from Traitor.prompt)
+Player -> GS : click opponent's Red 8 on Stone 2
+GS -> PC : choose(TARGET_CARD, "RED-8")
+PC --> GS : nextField() = DESTINATION
+GS -> Player : highlight own Stones with room
+Player -> GS : click Stone 6
+GS -> PC : choose(DESTINATION, 5)
+GS -> Session : submitAsHuman(PlayCardAction(T-TRAITOR, params))
+Session -> Engine : apply(copy, actor, action)
+activate Engine
+Engine -> Engine : requireTurn(PLAY)
+Engine -> Rules : maySpecialBePlayed (at most one more\nspecial card than the opponent)
+Engine -> Traitor : validate(ctx, card, params)
+Engine -> Engine : remove from hand,\nincrementSpecialPlayed
+Engine -> Traitor : apply(ctx, card, params)
+Traitor -> Traitor : source.removeCard(opponent, RED-8)\ndest.addCard(actor, RED-8)\nctx.discard(Traitor)\nemit CARD_MOVED
+Engine -> Engine : no pending effect: phase = CLAIM
+Engine --> Session : events
+deactivate Engine
+Session -> GS : onUpdate (card flies to Stone 6,\nTraitor appears on the discard pile)
+
+== B. Recruiter: a MultiStepEffect ==
+Player -> GS : play the Recruiter, choose the decks (dialog)
+GS -> Session : submitAsHuman(PlayCardAction(T-RECRUITER, decks))
+Session -> Engine : apply(...)
+Engine -> Recruiter : validate, apply
+Recruiter -> Recruiter : draw 3 cards, discard Recruiter,\nstate.setPending(PendingEffect)
+Engine -> Engine : pending present: phase = RESOLVE_EFFECT
+Session -> GS : onUpdate
+GS -> GS : maybeResolve()
+GS -> Engine : legalActions(snapshot)
+Engine -> Recruiter : enumerateResolutions(ctx, pending)
+Engine --> GS : ResolveEffectAction options
+GS -> Player : dialog: choose 2 cards to return
+Player -> GS : pick the cards
+GS -> Session : submitAsHuman(ResolveEffectAction(cards))
+Session -> Engine : apply(...)
+Engine -> Engine : check pending.player() == actor
+Engine -> Recruiter : validateResolution, resolve
+Recruiter -> Recruiter : put the cards under their decks\nemit EFFECT_RESOLVED
+Engine -> Engine : clear pending, phase = CLAIM
+Session -> GS : onUpdate
+
+note over Engine, Reg
+  The engine never names a card: adding a Tactic or an expansion card
+  means registering a new CardEffect (or MultiStepEffect) in the registry.
+end note
+@enduml

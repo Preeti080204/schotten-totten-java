@@ -1,0 +1,20 @@
+target/
+*.class
+*.tmp
+.DS_Store
+.idea/
+*.iml
+.vscode/
+/submission/
+/distribution/*.jar
+/distribution/*.zip
+
+# Local media captures (keep edited demo if present)
+docs/media/raw/*
+!docs/media/raw/README.txt
+*.mov
+*.MOV
+
+# Audit / local scratch
+target/audit-*
+test-settings.json

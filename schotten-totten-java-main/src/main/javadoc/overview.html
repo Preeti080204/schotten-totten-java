@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>Schotten Totten</title></head>
+<body>
+<p>An electronic version of Reiner Knizia's card game <em>Schotten Totten</em>, written for
+the LO02 project (A26). Two players, human or virtual, fight for nine boundary Stones with
+three-card formations; the first to claim five Stones, or three adjacent Stones, wins.</p>
+
+<h1>Features</h1>
+<ul>
+    <li>The base game and the Tactic variant (all ten Tactic cards and a visible discard pile).
+        The Experts variant is deliberately not implemented.</li>
+    <li>Claims, including early claims proved from the cards on the table only.</li>
+    <li>Three original expansion cards ("Highland Muster"), chosen with a yes/no prompt at the
+        start of a game.</li>
+    <li>A single round or a match over several rounds (the winner of a round scores 5 points,
+        the loser one point per Stone claimed).</li>
+    <li>Human against human (hot-seat, with hidden hands), human against computer and
+        computer against computer, with an Easy and a Hard virtual player.</li>
+    <li>A JavaFX graphical interface and a command line that can play the same game at the same
+        time.</li>
+    <li>Versioned JSON saves and an automatic save of the game in progress.</li>
+</ul>
+
+<h1>Architecture</h1>
+<p>The code follows Model-View-Controller and keeps the rules independent of any user
+interface:</p>
+<ul>
+    <li><b>Model</b>: {@link com.schottentotten.model} (data), {@link com.schottentotten.rules}
+        (pure rule logic), {@link com.schottentotten.engine} (turn state machine and card-effect
+        system) and {@link com.schottentotten.cards} (behaviour of every card). None of these
+        packages depends on JavaFX.</li>
+    <li><b>Controller</b>: {@link com.schottentotten.controller}. A
+        {@link com.schottentotten.controller.GameSession} applies actions atomically and notifies
+        its listeners; the {@link com.schottentotten.controller.SessionHub} shares the active
+        session between the views and drives the virtual players.</li>
+    <li><b>Views</b>: {@link com.schottentotten.view} (JavaFX) and {@link com.schottentotten.cli}
+        (text). Both only observe the session and submit actions, so they compete on equal terms
+        for the same game.</li>
+    <li><b>Services</b>: {@link com.schottentotten.ai} (virtual players, Strategy pattern),
+        {@link com.schottentotten.persistence} (saves) and {@link com.schottentotten.app} (entry
+        points, wiring and the {@link com.schottentotten.app.GameSettings} Singleton).</li>
+</ul>
+
+<h1>Design patterns</h1>
+<ul>
+    <li><b>Strategy</b>: {@link com.schottentotten.ai.PlayerStrategy} with an Easy and a Hard
+        implementation, chosen by {@link com.schottentotten.ai.StrategyFactory}.</li>
+    <li><b>Singleton</b>: {@link com.schottentotten.app.GameSettings}, the one set of player
+        preferences backed by one file.</li>
+    <li><b>Observer</b>: {@link com.schottentotten.controller.SessionListener} notifications from
+        the session to both views.</li>
+    <li><b>Command</b>: every move is an immutable
+        {@link com.schottentotten.engine.action.Action} validated by
+        {@link com.schottentotten.engine.GameEngine}.</li>
+    <li><b>Registry / open-closed card effects</b>: card behaviour is looked up in the
+        {@link com.schottentotten.engine.EffectRegistry}, so new cards are added without changing
+        the engine.</li>
+</ul>
+
+<h1>Entry points</h1>
+<ul>
+    <li>{@link com.schottentotten.app.Launcher}: graphical interface; pass {@code --with-cli} to
+        attach the command line to the same game.</li>
+    <li>{@link com.schottentotten.app.CliLauncher}: command line only.</li>
+</ul>
+</body>
+</html>

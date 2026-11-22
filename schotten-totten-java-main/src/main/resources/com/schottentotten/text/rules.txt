@@ -1,0 +1,61 @@
+## Goal
+Two rival Scottish clans dispute a border marked by nine Stones. Win a round by controlling
+three adjacent Stones, or any five Stones. Control a Stone by claiming it with a stronger
+three-card formation than your opponent's.
+
+## Your turn
+1. Play one card from your hand in front of a Stone on your side of the border (a Stone that
+   is not claimed and where you have fewer than three cards).
+2. Claim any number of Stones you are entitled to (see Claims).
+3. Draw one card to refill your hand (6 cards; 7 in the Tactic variant). In the Tactic
+   variant you choose which deck to draw from.
+If you cannot play any card you must pass. When no card can be played by either player the
+round ends: the player with more Stones wins, otherwise the round is drawn (custom rule).
+
+## Formations (strongest first)
+1. Color-Run: three consecutive values of the same colour (e.g. Red 3-4-5).
+2. Three of a Kind: three cards of the same value (e.g. 8-8-8).
+3. Color: three cards of the same colour.
+4. Run: three consecutive values of any colours.
+5. Sum: anything else.
+Between two formations of the same type, the higher total wins. If still tied, the player
+who completed the formation first wins.
+
+## Claims
+After playing your card you may claim a Stone if your formation there is complete and
+either:
+- your opponent's formation is also complete and yours wins, or
+- it can be proven from the cards visible on the table (board and discard) that your
+  opponent can never beat your formation, whatever cards they still play there.
+A claimed Stone is turned to your side and no more cards can be played there.
+
+## Victory
+A round ends immediately when a player controls three adjacent Stones or five Stones.
+In a multi-round match the round winner scores 5 points and the loser scores one point per
+Stone controlled. After the last round the highest total wins the match.
+
+## Tactic variant
+Tactic cards are shuffled into a separate deck and each player holds 7 cards. When drawing
+you choose the Clan or the Tactic deck. You may only play a Tactic (or expansion) card if you
+have not played more such cards than your opponent. A player may play only one Joker per
+round. Ruses are placed face up on a discard pile next to the board after use.
+
+## Expansion: Highland Muster (original, optional)
+Three original cards in a separate Expansion deck (two copies each). They count as special
+cards for the one-more-than-your-opponent rule. See the card list for their effects.
+
+## Saving and loading
+Open the Menu on the game screen and choose Save Game (or press Cmd/Ctrl+S), then give the
+game a name. Saved games appear under Load Game, in the main menu and in the game menu, where
+they can also be deleted. The game in progress is also saved automatically at the start of
+every turn: Continue in the main menu resumes it exactly where it stopped.
+On the command line, type 'save [name]', 'saves' and 'load [name|number]'.
+
+## Interface tips
+Click a card then a highlighted Stone, or drag the card onto the Stone. Use the golden Claim
+button on a Stone to claim it, then click a glowing draw pile to end your turn.
+Keyboard: 1-7 select a card in your hand, then 1-9 choose the Stone; C claims every Stone
+you can; E or Enter ends the turn; P passes; H shows a hint; D shows the discard pile;
+M mutes or restores the sound; Esc cancels the current selection; Cmd/Ctrl+S saves.
+With two human players, the screen hides both hands between turns: hand over the computer
+and let the next player reveal their cards.

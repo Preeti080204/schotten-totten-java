@@ -1,0 +1,92 @@
+@startuml mvc
+!include style.iuml
+title MVC — two competing views on one live game
+
+package "View" #F7EFEA {
+  package "view (JavaFX)" {
+    class SchottenTottenApp
+    class ScreenManager
+    class GameScreen
+    class "MainMenu / Setup / Rules /\nSettings / Load screens" as Screens
+  }
+  package "cli" {
+    class CommandLineView
+    class TextRenderer
+  }
+}
+
+package "Controller" #EEF6F1 {
+  class GameController <<facade>> {
+    + startNewGame(GameConfiguration)
+    + save(Path) / load(Path)
+    + hint()
+  }
+  class SessionHub {
+    + activate(GameSession, delay)
+    + current()
+    + clear()
+  }
+  class GameSession {
+    + snapshot() : GameState
+    + submitAsHuman(Action) : ActionOutcome
+    + addListener(SessionListener)
+  }
+  interface SessionListener {
+    + onUpdate(SessionUpdate)
+  }
+  class VirtualPlayerDriver
+  class ParameterChooser
+  class TextDescriber
+}
+
+package "Model" #FBF5E4 {
+  class GameEngine
+  class GameState
+  package "rules / cards / engine.action" as RulesPkg {
+  }
+  class "PlayerStrategy (ai)" as Strategy
+  class "SaveManager (persistence)" as Saves
+}
+
+SchottenTottenApp --> ScreenManager
+ScreenManager --> GameScreen
+ScreenManager --> Screens
+GameScreen ..|> SessionListener
+CommandLineView ..|> SessionListener
+VirtualPlayerDriver ..|> SessionListener
+CommandLineView --> TextRenderer
+
+GameScreen --> GameController : new game, save, load, hint
+CommandLineView --> GameController
+GameScreen --> GameSession : submitAsHuman(action)
+CommandLineView --> GameSession : submitAsHuman(action)
+GameScreen ..> ParameterChooser
+CommandLineView ..> ParameterChooser
+GameScreen ..> TextDescriber
+CommandLineView ..> TextDescriber
+
+GameController --> SessionHub
+GameController --> Saves
+SessionHub o-- GameSession : active session
+SessionHub *-- VirtualPlayerDriver
+SessionHub ..> GameScreen : session changed
+SessionHub ..> CommandLineView : session changed
+GameSession o-- "*" SessionListener : notifies with\nimmutable snapshots
+GameSession --> GameEngine : apply(copy, actor, action)
+GameSession *-- GameState
+VirtualPlayerDriver --> Strategy
+VirtualPlayerDriver --> GameSession : submit(actor, action, version)
+GameEngine --> RulesPkg
+
+note bottom of GameSession
+  Every action, from a click, a typed command or a virtual player,
+  goes through the same validation. It is applied to a copy and
+  committed only if the engine accepts it. Both views are then notified,
+  so a move typed in the terminal appears in the window and vice versa.
+end note
+
+note top of GameEngine
+  The model has no dependency on JavaFX,
+  the command line or the preferences.
+end note
+@enduml

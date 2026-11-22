@@ -1,0 +1,81 @@
+@startuml singleton-gamesettings
+!include style.iuml
+title Singleton — GameSettings (user preferences)
+
+class GameSettings <<Singleton>> {
+  - mapper : ObjectMapper
+  - listeners : List<Runnable>
+  - file : Path
+  - values : Values
+  - GameSettings(file : Path)
+  + {static} getInstance() : GameSettings
+  + save()
+  + addListener(Runnable)
+  + isSoundEnabled() / setSoundEnabled(boolean)
+  + isMusicEnabled() / setMusicEnabled(boolean)
+  + volume() / setVolume(double)
+  + isReduceMotion() / setReduceMotion(boolean)
+  + speed() / setSpeed(Speed)
+  + defaultDifficulty() / setDefaultDifficulty(Difficulty)
+  + isShowHints() / setShowHints(boolean)
+  + lastPlayerNames() / setLastPlayerNames(String, String)
+}
+
+class "GameSettings.Holder" as Holder <<private static>> {
+  {static} INSTANCE : GameSettings
+}
+
+class "GameSettings.Values" as Values <<private static>> {
+  soundEnabled, musicEnabled : boolean
+  volume : double
+  reduceMotion, showHints : boolean
+  speed : Speed
+  defaultDifficulty : Difficulty
+  lastPlayer1, lastPlayer2 : String
+}
+
+enum "GameSettings.Speed" as Speed {
+  SLOW(1400)
+  NORMAL(750)
+  FAST(300)
+  INSTANT(40)
+  + aiDelayMillis() : long
+  + displayName() : String
+}
+
+Holder --> "1" GameSettings : creates lazily,\nthread-safe
+GameSettings *-- Values : persisted as JSON
+GameSettings ..> Speed
+
+class AppContext
+class ScreenManager
+class SoundManager
+class SettingsScreen
+class SetupScreen
+class GameScreen
+class SideRail
+class GameEngine
+
+AppContext ..> GameSettings : AI pace
+ScreenManager ..> GameSettings : reduce motion
+SoundManager ..> GameSettings : sound, music, volume
+SettingsScreen ..> GameSettings : edits
+SetupScreen ..> GameSettings : defaults, last names
+GameScreen ..> GameSettings : hints, motion
+SideRail ..> GameSettings : pace switch
+
+note right of GameSettings
+  Why a Singleton: preferences belong to the
+  installation, not to a game. Every screen must
+  see the same values and they live in exactly
+  one file (~/.schotten-totten/settings.json).
+  Initialisation-on-demand holder: lazy and
+  thread-safe without locks.
+end note
+
+note bottom of GameEngine
+  Deliberately NOT a client: game rules travel in the
+  immutable GameConfiguration, so the engine stays
+  free of global state and fully testable.
+end note
+@enduml
